@@ -1,4 +1,4 @@
-# ECHO SURGE!
+ ECHO SURGE
 
 **Kinetic Reflex Arcade**
 
