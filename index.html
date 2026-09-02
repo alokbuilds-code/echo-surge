@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="ECHO SURGE — An elite kinetic reflex arcade game built with pure HTML5, CSS3, and JavaScript.">
+  <meta name="theme-color" content="#07090E">
+  <title>ECHO SURGE // KINETIC REFLEX ARCADE</title>
+
+  <!-- Google Fonts: Syne, Space Grotesk & Fragment Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Fullscreen Game Canvas -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- Live Gameplay HUD Overlay -->
+  <div class="game-hud" id="game-hud">
+    <!-- Top HUD Bar -->
+    <div class="hud-top-bar">
+      <!-- Score Cluster -->
+      <div class="hud-score-cluster font-mono">
+        <div class="score-label">SCORE</div>
+        <div class="score-value font-display" id="hud-score">0</div>
+        <div class="high-score-tag" id="hud-high-score">HIGH: 0</div>
+      </div>
+
+      <!-- Multiplier Tier Center -->
+      <div class="hud-multiplier-cluster">
+        <div class="multiplier-ring-wrap font-mono">
+          <span class="multiplier-tier font-display" id="hud-multiplier">1X</span>
+          <span class="multiplier-label">MULTIPLIER</span>
+        </div>
+        <div class="multiplier-progress-track">
+          <div class="multiplier-progress-fill" id="hud-mult-bar"></div>
+        </div>
+      </div>
+
+      <!-- Controls & FPS -->
+      <div class="hud-controls-cluster font-mono">
+        <button type="button" class="hud-btn" id="btn-sound-toggle" aria-label="Toggle Sound">
+          <span id="sound-status-icon">🔊</span>
+          <span id="sound-status-text">AUDIO: ON</span>
+        </button>
+        <button type="button" class="hud-btn" id="btn-pause-toggle" aria-label="Pause Game">
+          <span>PAUSE [ESC]</span>
+        </button>
+        <div class="fps-counter" id="hud-fps">60 FPS</div>
+      </div>
+    </div>
+
+    <!-- Bottom HUD Bar: Chrono Blast & Shields -->
+    <div class="hud-bottom-bar">
+      <!-- Chrono Energy Gauge -->
+      <div class="chrono-gauge-cluster font-mono">
+        <div class="chrono-header">
+          <span class="chrono-title">CHRONO PULSE [SPACEBAR / DOUBLE-TAP]</span>
+          <span class="chrono-ready-status" id="chrono-ready-tag">CHARGING</span>
+        </div>
+        <div class="chrono-bar-track">
+          <div class="chrono-bar-fill" id="hud-chrono-fill"></div>
+        </div>
+      </div>
+
+      <!-- Mode & Shield Integrity -->
+      <div class="shield-gauge-cluster font-mono">
+        <div class="shield-label">SHIELD INTEGRITY</div>
+        <div class="shield-pips" id="hud-shield-pips">
+          <span class="shield-pip active"></span>
+          <span class="shield-pip active"></span>
+          <span class="shield-pip active"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- START / TITLE MENU SCREEN -->
+  <div class="game-overlay active" id="screen-start">
+    <div class="modal-card">
+      <div class="modal-header-meta font-mono">
+        <span>ARCHIVE // v2.4</span>
+        <span class="status-live">● SYSTEM READY</span>
+      </div>
+
+      <h1 class="game-logo font-display">
+        ECHO<span class="logo-accent">SURGE</span>
+      </h1>
+      <p class="game-tagline font-mono">
+        KINETIC REFLEX ARCADE // AUDIO-SYNTHESIZED VECTOR SYSTEM
+      </p>
+
+      <!-- Mode Selector -->
+      <div class="mode-selector font-mono" role="radiogroup" aria-label="Game Mode">
+        <button type="button" class="mode-btn active" data-mode="classic">
+          <span class="mode-name">CLASSIC</span>
+          <span class="mode-desc">Standard escalating hazard velocity</span>
+        </button>
+        <button type="button" class="mode-btn" data-mode="hyper">
+          <span class="mode-name">HYPERDRIVE</span>
+          <span class="mode-desc">Instant max velocity for elite reflexes</span>
+        </button>
+        <button type="button" class="mode-btn" data-mode="zen">
+          <span class="mode-name">ZEN FLOW</span>
+          <span class="mode-desc">Non-lethal continuous flow state</span>
+        </button>
+      </div>
+
+      <!-- Controls Cheat Sheet -->
+      <div class="controls-cheatsheet font-mono">
+        <div class="control-col">
+          <span class="c-key">MOUSE / TOUCH / WASD</span>
+          <span class="c-desc">Kinetic Movement</span>
+        </div>
+        <div class="control-col">
+          <span class="c-key">SPACEBAR / DOUBLE TAP</span>
+          <span class="c-desc">Chrono Pulse Blast</span>
+        </div>
+        <div class="control-col">
+          <span class="c-key">ESC / P</span>
+          <span class="c-desc">Pause System</span>
+        </div>
+      </div>
+
+      <!-- Launch Action -->
+      <button type="button" class="btn-primary-launch font-display" id="btn-start-game">
+        <span>INITIATE SURGE</span>
+        <span class="launch-icon">→</span>
+      </button>
+
+      <div class="modal-footer-note font-mono">
+        PRO-TIP: Harvest shards consecutively to unlock 16X HYPERDRIVE combo scoring.
+      </div>
+    </div>
+  </div>
+
+  <!-- PAUSE MENU OVERLAY -->
+  <div class="game-overlay" id="screen-pause">
+    <div class="modal-card pause-card">
+      <div class="modal-header-meta font-mono">
+        <span>STATUS: SUSPENDED</span>
+        <span>CHRONO FROZEN</span>
+      </div>
+
+      <h2 class="modal-title font-display">SYSTEM PAUSED</h2>
+
+      <div class="pause-actions font-mono">
+        <button type="button" class="btn-modal-action font-display" id="btn-resume-game">
+          RESUME OPERATION [ESC]
+        </button>
+        <button type="button" class="btn-modal-action secondary" id="btn-restart-from-pause">
+          RESTART RUN
+        </button>
+        <button type="button" class="btn-modal-action secondary" id="btn-menu-from-pause">
+          RETURN TO TITLE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER / RESULTS SCREEN -->
+  <div class="game-overlay" id="screen-gameover">
+    <div class="modal-card gameover-card">
+      <div class="modal-header-meta font-mono">
+        <span>MISSION REPORT</span>
+        <span class="status-term">SYSTEM COMPROMISED</span>
+      </div>
+
+      <div class="results-hero">
+        <div class="rank-badge font-display" id="res-rank">S+</div>
+        <div class="results-score-wrap">
+          <span class="res-label font-mono">FINAL HARVEST SCORE</span>
+          <span class="res-score font-display" id="res-score">000,000</span>
+          <span class="res-new-high font-mono" id="res-new-high">★ NEW ALL-TIME RECORD</span>
+        </div>
+      </div>
+
+      <!-- Telemetry Stats Matrix -->
+      <div class="stats-matrix font-mono">
+        <div class="stat-cell">
+          <span class="sc-label">MAX COMBO</span>
+          <span class="sc-val" id="res-max-combo">16X</span>
+        </div>
+        <div class="stat-cell">
+          <span class="sc-label">SHARDS HARVESTED</span>
+          <span class="sc-val" id="res-shards">0</span>
+        </div>
+        <div class="stat-cell">
+          <span class="sc-label">CHRONO BLASTS</span>
+          <span class="sc-val" id="res-blasts">0</span>
+        </div>
+        <div class="stat-cell">
+          <span class="sc-label">SURVIVAL TIME</span>
+          <span class="sc-val" id="res-time">00:00</span>
+        </div>
+      </div>
+
+      <!-- Replay Actions -->
+      <div class="results-actions">
+        <button type="button" class="btn-primary-launch font-display" id="btn-restart-game">
+          <span>RE-ENGAGE [SPACE]</span>
+          <span class="launch-icon">↻</span>
+        </button>
+        <button type="button" class="btn-ghost-action font-mono" id="btn-menu-from-gameover">
+          TITLE MENU
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
